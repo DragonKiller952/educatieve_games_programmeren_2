@@ -8,13 +8,15 @@ using UnityEngine;
 public class PinHandler : MonoBehaviour
 {
     public GameObject planet;
+    public LevelHandler gameHandler;
     public new Camera camera;
     public GameObject[] pins1;
     public GameObject[] pins;
     public float dist;
+    public GameObject playerObj;
     public NewPlayerMovement player;
-    private PlanetMovement planetMov;
-    private bool canSelect = true;
+    public PlanetMovement planetMov;
+    public bool canSelect = true;
 
     private Dictionary<string, List<string>> connections;
 
@@ -63,7 +65,7 @@ void Start()
 
                 if (Physics.Raycast(ray, out RaycastHit hitInfo))
                 {
-                    if (hitInfo.collider.gameObject.GetComponent<Target>() != null)
+                    if (hitInfo.collider.gameObject.GetComponent<Target>() != null && gameHandler.pins.Contains(hitInfo.collider.gameObject))
                     {
                         print(hitInfo.collider.gameObject.name);
                         WalkPath(Pathfinding(hitInfo.collider.gameObject.name));
@@ -114,7 +116,7 @@ void Start()
         };
     }
 
-    private GameObject[] Pathfinding(string destination)
+    public GameObject[] Pathfinding(string destination)
     {
         var closestDist = new Dictionary<string, float>();
         var closestConn = new Dictionary<string, string>();
@@ -205,9 +207,11 @@ void Start()
             player.location = pin.name;
             yield return new WaitUntil(() => player.arived == true && Vector3.Distance(player.player.transform.position, player.pin.transform.position) <= 0.2);
         }
-        planetMov.canMove = true;
-        canSelect = true;
+        //planetMov.canMove = true;
+        //canSelect = true;
         player.standby = true;
+
+        gameHandler.OpenLevel(player.location, playerObj);
 
     }
 }
