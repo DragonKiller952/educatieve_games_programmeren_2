@@ -1,39 +1,98 @@
 using System.Collections;
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UIElements;
 
 public class PlayerMovement : MonoBehaviour
 {
-    public float moveSpeed;
-
-    public GameObject planetX;
-
-    public GameObject planetY;
-
+    public GameObject player;
+    public float dist;
+    public float speed;
     public GameObject pin;
-
+    public string location = "Netherlands";
     private Vector3 moveDirection;
+    public GameObject planetY;
+    private GameObject planetX;
+    public bool arived;
+    public bool standby = true;
+    private Quaternion rot;
+    private Vector3 planetYRotationDefault;
+    private Vector3 planetXRotationDefault;
+
+
+    void Start()
+    {
+        planetX = planetY.transform.parent.gameObject;
+
+        player.transform.LookAt(transform);
+        player.transform.Rotate(-90, 0, 0, Space.Self);
+        Vector3 dir = (transform.position - player.transform.position).normalized;
+        player.transform.position = transform.position - dir * dist;
+        planetYRotationDefault = planetY.transform.localEulerAngles;
+        planetXRotationDefault = planetX.transform.localEulerAngles;
+        
+    }
 
     // Update is called once per frame
     void Update()
     {
-        moveDirection = (pin.transform.position - transform.position).normalized;
-        //print((pin.transform.position, transform.position, pin.transform.position - transform.position, Vector3.Distance(transform.position, pin.transform.position)));
-        //moveDirection.y = 0;
+        if (!standby)
+        {
+            moveDirection = (pin.transform.position - transform.position).normalized;
+        }
     }
 
     void FixedUpdate()
     {
-        if (Vector3.Distance(transform.position, pin.transform.position) > 0.5)
+        if (!standby)
         {
-            GetComponent<Rigidbody>().MovePosition(GetComponent<Rigidbody>().position + moveDirection * moveSpeed * Time.deltaTime);
-            //transform.LookAt(new Vector3(pin.transform.position.x, transform.position.y, pin.transform.position.z));
+            if (Vector3.Distance(player.transform.position, pin.transform.position) > 0.2)
+            {
+                arived = false;
 
-            var plane = new Plane(transform.up, transform.position);
-            var mappedTargetPosition = plane.ClosestPointOnPlane(pin.transform.position);
+                var plane = new Plane(player.transform.up, player.transform.position);
+                var mappedTargetPosition = plane.ClosestPointOnPlane(pin.transform.position);
 
-            transform.rotation = Quaternion.LookRotation(mappedTargetPosition - transform.position, transform.up);
+                player.transform.rotation = Quaternion.LookRotation(mappedTargetPosition - player.transform.position, player.transform.up);
+
+                Vector3 target = pin.transform.position;
+
+                Vector3 newDir = Vector3.RotateTowards(transform.forward, target, speed * Time.deltaTime, 0f);
+                transform.rotation = Quaternion.LookRotation(newDir);
+
+                planetY.transform.localEulerAngles = new Vector3(planetY.transform.localEulerAngles.x, (planetYRotationDefault.y - transform.localEulerAngles.y) - 5f, planetY.transform.localEulerAngles.z);
+
+                Quaternion tempRotation = planetX.transform.rotation;
+                planetX.transform.localEulerAngles = new Vector3(planetX.transform.localEulerAngles.x, planetX.transform.localEulerAngles.y, (planetXRotationDefault.z - checkEulerAngle(transform.localEulerAngles.x)) + 15f);
+
+                if (planetX.transform.rotation.z > 0.35f)
+                {
+                    planetX.transform.rotation = tempRotation;
+                }
+                if (-0.20f > planetX.transform.rotation.z)
+                {
+                    planetX.transform.rotation = tempRotation;
+                }
+            }
+            else
+            {
+                location = pin.name;
+                arived = true;
+            }
         }
+    }
+
+    private float checkEulerAngle(float angle)
+    {
+        if (angle <= 180)
+        {
+            return angle;
+        }
+        else
+        {
+            return 360 - angle;
+        }
+
     }
 }

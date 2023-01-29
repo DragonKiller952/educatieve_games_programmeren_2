@@ -14,7 +14,7 @@ public class PinHandler : MonoBehaviour
     public GameObject[] pins;
     public float dist;
     public GameObject playerObj;
-    public NewPlayerMovement player;
+    public PlayerMovement player;
     public PlanetMovement planetMov;
     public bool canSelect = true;
 
@@ -35,24 +35,6 @@ void Start()
             Vector3 dir = (planet.transform.position - pin.transform.position).normalized;
             pin.transform.position = planet.transform.position - dir * dist;
         }
-        //string path = "Assets/Resources/test.txt";
-        //StreamWriter writer = new StreamWriter(path, true);
-
-        //foreach (GameObject pin in pins)
-        //{
-        //    foreach(GameObject pin1 in pins)
-        //    {
-        //        if (Vector3.Distance(pin.transform.position, pin1.transform.position) < 2)
-        //        {
-        //            writer.WriteLine(pin.name + "->" + pin1.name + ": " + Vector3.Distance(pin.transform.position, pin1.transform.position));
-        //            print(pin.name + "->" + pin1.name + ": " + Vector3.Distance(pin.transform.position, pin1.transform.position));
-        //        }
-        //    }
-        //}
-        //writer.Close();
-
-        //StartCoroutine(moveYaDaftBasterd(pins));
-        //GameObject.Find("Netherlands").SetActive(false);
     }
 
     void Update()
@@ -67,7 +49,6 @@ void Start()
                 {
                     if (hitInfo.collider.gameObject.GetComponent<Target>() != null && gameHandler.pins.Contains(hitInfo.collider.gameObject))
                     {
-                        print(hitInfo.collider.gameObject.name);
                         WalkPath(Pathfinding(hitInfo.collider.gameObject.name));
                     }
                 }
@@ -162,14 +143,11 @@ void Start()
                         }
                     }
                 }
-                Console.WriteLine(string.Join(", ", nextCheck));
-                print(("finished", checkLocation, minDistance, nextLocation));
                 closestDist.Add(checkLocation, minDistance);
                 closestConn.Add(checkLocation, nextLocation);
             }
             toCheck = nextCheck;
         }
-        print("found the destination");
 
         List<GameObject> path = new List<GameObject>();
         string pathPoint = destination;
@@ -177,7 +155,6 @@ void Start()
 
         while (pathPoint != current)
         {
-            print(pathPoint);
             path.Add(GameObject.Find(pathPoint));
             pathPoint = closestConn[pathPoint];
 
@@ -203,7 +180,6 @@ void Start()
         {
             planetMov.canMove = false;
             player.pin = pin;
-            print("guess ill wait");
             player.location = pin.name;
             yield return new WaitUntil(() => player.arived == true && Vector3.Distance(player.player.transform.position, player.pin.transform.position) <= 0.2);
         }
