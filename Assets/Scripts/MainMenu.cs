@@ -6,9 +6,15 @@ using UnityEngine.UI;
 
 public class MainMenu : MonoBehaviour
 {
-    public GameObject Settings;
+    public GameObject tutorial;
     public GameObject Loading;
     public Slider loadingBar;
+
+    void Start()
+    {
+
+        PlayerPrefs.SetInt("Difficulty", 1);
+    }
 
     /// <summary>
     /// Starts the scene containing the game with a loading screen
@@ -19,20 +25,27 @@ public class MainMenu : MonoBehaviour
     }
 
     /// <summary>
-    /// Opens the given Tutorial screen
+    /// Saves the selected difficulty from the dropdown
     /// </summary>
-    public void OpenSettings()
+    public void SaveDifficulty(int value)
     {
-        Settings.SetActive(true);
+        PlayerPrefs.SetInt("Difficulty", value + 1);
     }
 
+    /// <summary>
+    /// Opens the tutorial
+    /// </summary>
+    public void OpenTutorial()
+    {
+        tutorial.SetActive(true);
+    }
 
     /// <summary>
-    /// Closes the given Tutorial screen
+    /// Closes the tutorial
     /// </summary>
-    public void CloseSettings()
+    public void CloseTutorial()
     {
-        Settings.SetActive(false);
+        tutorial.SetActive(false);
     }
 
     /// <summary>

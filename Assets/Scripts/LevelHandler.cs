@@ -16,12 +16,13 @@ public class LevelHandler : MonoBehaviour
     public GameObject turnText;
     public GameObject endScreen;
     public GameObject endText;
-    private int difficulty = 1;
+    private int difficulty;
     private int playerScore;
     private int computerScore;
 
     void Start()
     {
+        // Reset ending of game in case it was restarted
         Time.timeScale = 1;
         endScreen.SetActive(false);
 
@@ -33,9 +34,13 @@ public class LevelHandler : MonoBehaviour
         computerScore = 0;
 
         // Set computer difficulty
-        //difficulty = PlayerPrefs.GetInt("Difficulty");
+        difficulty = PlayerPrefs.GetInt("Difficulty");
     }
 
+    /// <summary>
+    /// Shows the question screen if the user is the player,
+    /// otherwise it wil simulate a computer turn
+    /// </summary>
     public void OpenLevel(string country, GameObject user)
     {
         GameObject pin = GameObject.Find(country);
@@ -47,6 +52,7 @@ public class LevelHandler : MonoBehaviour
             pin.GetComponent<MeshRenderer>().material.color = Color.blue;
             pins.Remove(pin);
 
+            // Show the questions for the given country
             screen.ShowQuestions(country);
         }
         else
@@ -54,16 +60,24 @@ public class LevelHandler : MonoBehaviour
             pin.GetComponent<Renderer>().material.color = Color.red;
             pins.Remove(pin);
 
+            // Simulate the turn of the computer
             TurnHandler(ComputerTurn(), false);
         }
     }
 
+    /// <summary>
+    /// Handles the Label showing the currnet turn,
+    /// adding the gained points to the total scores, and ending the game
+    /// </summary>
     public void TurnHandler(int score, bool player)
     {
         if (player)
         {
+            // Add the points to the player score and make it the computers turn
             playerScore += score;
             PScore.GetComponent<TMP_Text>().text = playerScore.ToString();
+
+            // End the game if there are no more available pins
             if (pins.Count == 0)
             {
                 EndScreen();
@@ -79,8 +93,11 @@ public class LevelHandler : MonoBehaviour
         }
         else
         {
+            // Add the points to the computer score and make it the players turn
             computerScore += score;
             CScore.GetComponent<TMP_Text>().text = computerScore.ToString();
+
+            // End the game if there are no more available pins
             if (pins.Count == 0)
             {
                 EndScreen();
@@ -97,6 +114,9 @@ public class LevelHandler : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Simulates a fake turn for the computer
+    /// </summary>
     private int ComputerTurn()
     {
         int score = 0;
@@ -111,6 +131,9 @@ public class LevelHandler : MonoBehaviour
         return score;
     }
 
+    /// <summary>
+    /// Shows the winner and gives the option to restart or go to main menu
+    /// </summary>
     private void EndScreen()
     {
         Time.timeScale = 0;
@@ -132,11 +155,18 @@ public class LevelHandler : MonoBehaviour
 
     }
 
+    /// <summary>
+    /// Restarts the game
+    /// </summary>
     public void RestartGame()
     {
         SceneManager.LoadScene("Main_scene");
     }
 
+
+    /// <summary>
+    /// Goes to main menu
+    /// </summary>
     public void EndGame()
     {
         SceneManager.LoadScene("Main_menu");

@@ -58,6 +58,9 @@ public class AnswerChecker : MonoBehaviour
         };
     }
 
+    /// <summary>
+    /// Shows the question screen for the given country
+    /// </summary>
     public void ShowQuestions(string chosenCountry)
     {
         // Reset the question window and show it
@@ -81,6 +84,9 @@ public class AnswerChecker : MonoBehaviour
         languageInput.interactable = true;
     }
 
+    /// <summary>
+    /// Hides the question screen
+    /// </summary>
     public void HideQuestions()
     {
         // Hide the question window and send the recieved points back 
@@ -90,6 +96,9 @@ public class AnswerChecker : MonoBehaviour
 
     }
 
+    /// <summary>
+    /// Checks the answers according to the true answers, and gives feedback
+    /// </summary>
     public void CheckAnswer()
     {
         // Turn input fields off

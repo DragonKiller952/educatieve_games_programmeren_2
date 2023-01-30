@@ -24,9 +24,10 @@ public class PinHandler : MonoBehaviour
 // Start is called before the first frame update
 void Start()
     {
+        // Define the pin connections
         DefineConnections();
 
-        planetMov = planet.transform.parent.GetComponent<PlanetMovement>();
+        // Rotate all pins so they sit upright on the planet surface
         foreach (GameObject pin in pins)
         {
             pin.transform.LookAt(planet.transform);
@@ -39,6 +40,8 @@ void Start()
 
     void Update()
     {
+        // If the player is allowed to select a pin, get the selection using
+        // raycast and make the player walk towards it
         if (canSelect)
         {
             if (Input.GetMouseButtonDown(0))
@@ -56,6 +59,9 @@ void Start()
         }
     }
 
+    /// <summary>
+    /// Creates a dictionary defining all connections the pins have
+    /// </summary>
     private void DefineConnections()
     {
         connections = new Dictionary<string, List<string>> {
@@ -97,6 +103,10 @@ void Start()
         };
     }
 
+    /// <summary>
+    /// Returns the shortest path to the given destination from the players location
+    /// using Dijkstra's algorithm
+    /// </summary>
     public GameObject[] Pathfinding(string destination)
     {
         var closestDist = new Dictionary<string, float>();
@@ -109,11 +119,14 @@ void Start()
 
         List<string> toCheck = new List<string>();
 
+        // Add the initial locations to check
         foreach (string location in connections[current])
         {
             toCheck.Add(location);
         }
 
+        // While the destination has not been found, try and look for it by
+        // looking at the found pins neighbors
         while (!closestConn.ContainsKey(destination))
         {
             List<string> nextCheck = new List<string>();
@@ -123,6 +136,9 @@ void Start()
                 string nextLocation = "";
                 float curDistance;
 
+                // Report all new pins found as neighbors and check which of
+                // the known neighbors is the closest to the starting point,
+                // after which you document the closest
                 foreach (string location in connections[checkLocation])
                 {
                     if (!closestDist.ContainsKey(location))
@@ -149,6 +165,8 @@ void Start()
             toCheck = nextCheck;
         }
 
+        // Turn all the names of the pins in the path into the
+        // gameobjects they represent
         List<GameObject> path = new List<GameObject>();
         string pathPoint = destination;
         GameObject curObj = GameObject.Find(current);
@@ -160,12 +178,15 @@ void Start()
 
         }
 
+        // Reverse the path so it starts from the current location of the player
         path.Reverse();
 
         return path.ToArray();
     }
 
-
+    /// <summary>
+    /// Walks the path between the given gameobjects and show the questions
+    /// </summary>
     public void WalkPath(GameObject[] path)
     {
         StartCoroutine(moveYaDaftBasterd(path));
@@ -173,20 +194,25 @@ void Start()
 
     IEnumerator moveYaDaftBasterd(GameObject[] path)
     {
+        // Lock player inputs and unlock model movement
         planetMov.canMove = false;
         canSelect = false;
         player.standby = false;
+
+        // Make the model walk towards all pins in the path until it reaches
+        // the destination
         foreach (GameObject pin in path)
         {
             planetMov.canMove = false;
             player.pin = pin;
             player.location = pin.name;
-            yield return new WaitUntil(() => player.arived == true && Vector3.Distance(player.player.transform.position, player.pin.transform.position) <= 0.2);
+            yield return new WaitUntil(() => player.arived == true && Vector3.Distance(player.player.transform.position, player.pin.transform.position) <= 0.4);
         }
-        //planetMov.canMove = true;
-        //canSelect = true;
+
+        // Lock model movement
         player.standby = true;
 
+        // Open the question screen for the destination pin
         gameHandler.OpenLevel(player.location, playerObj);
 
     }

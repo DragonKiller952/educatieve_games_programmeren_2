@@ -8,6 +8,7 @@ public class Target : MonoBehaviour
 
     void Start()
     {
+        // Set the pin as targetable for OnMouseEnter
         targetable = true;
     }
 
